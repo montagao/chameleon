@@ -6,7 +6,7 @@ const REQUEST_HEADERS = {
   Authorization: `Bearer ${OPENAI_API_KEY}`,
 };
 
-export async function callOpenAIEndpoint() {
+export async function openAiGetWeatherParameters() {
   const API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
   const data = {
@@ -48,7 +48,7 @@ export async function callOpenAIEndpoint() {
   }
 }
 
-export async function askOpenApi(prompt: string) {
+export async function openAiAskAboutNfts(prompt: string) {
   const API_ENDPOINT = "https://api.openai.com/v1/completions";
 
   const data = {
