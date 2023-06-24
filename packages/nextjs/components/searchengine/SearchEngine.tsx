@@ -10,7 +10,7 @@ const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
       <textarea
         className="min-w-[400px] bg-transparent outline-none placeholder-gray-500 resize-none"
         rows={2}
-        placeholder="I want my NFT in the style of Studio Ghibli except..."
+        placeholder="Halloween"
         onChange={event => onTextChanged(event.target.value)}
       />
     </div>

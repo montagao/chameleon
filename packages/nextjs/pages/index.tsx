@@ -7,14 +7,15 @@ import {
   ChatCompletionRequestMessageRoleEnum as messageRoleEnum,
 } from "openai";
 import { MetaHeader } from "~~/components/MetaHeader";
+import { ImageCard } from "~~/components/imagecontainer/ImageCard";
 import SearchEngine from "~~/components/searchengine/SearchEngine";
+import { ImageCardDTO } from "~~/models/models";
 
+// Proompt
 const configuration = new Configuration({
   apiKey: "",
 });
-
 const openai = new OpenAIApi(configuration);
-
 const initialContext = {
   role: messageRoleEnum.System,
   content: `You will identify a theme based on the user input, and you will generate a list of values for each trait related to that theme. Generate 12 values for each trait. For ALL of your responses, do not include anything other than the data modal. Never add information describing your response that isn't part of the data model, such as 'Sure! Here are 12 values for each trait related to the theme of Christmas:'. I defined the data model as a JSON object for the assistant response below.
@@ -37,8 +38,20 @@ const initialContext = {
   `,
 };
 
+// Placeholder stuff
+const imgLink =
+  "https://images.unsplash.com/photo-1496070242169-b672c576566b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1643&q=80";
+
+const imageCards: Array<ImageCardDTO> = Array.from({ length: 4 }, (_, index) => ({
+  imgLink,
+  altText: `Image ${index}`,
+  isActive: false,
+  id: `${index}`,
+}));
+
 const Home: NextPage = () => {
   const [previewMode, setPreviewMode] = React.useState(false);
+  const [previewList, setPreviewList] = React.useState<ImageCardDTO[]>(imageCards);
   const messageLog: ChatCompletionRequestMessage[] = [initialContext];
   let currentPromptInput = "";
 
@@ -70,9 +83,8 @@ const Home: NextPage = () => {
           });
         }
         console.log(gptResponse);
-        console.log(messageLog);
       } catch (error) {
-        console.error(`Error occurred during API call: ${error}`);
+        console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
       }
     };
     fetchAndLog();
@@ -83,83 +95,43 @@ const Home: NextPage = () => {
     currentPromptInput = text;
   };
 
+  const imgChosenCallback = (imgID: string) => {
+    const newPreviewList = previewList.map(img => {
+      return { ...img, isActive: img.id === imgID };
+    });
+    setPreviewList(newPreviewList);
+  };
+
   return (
     <>
       <MetaHeader />
       <div className="flex flex-col items-center justify-center flex-grow">
-        <div className="flex flex-col justify-center">
-          <div className="flex">
-            <div className="flex p-8">
-              <SearchEngine onTextChanged={handleTextChange} />
-            </div>
+        <div className="flex flex-col justify-center gap-5">
+          <div className="flex flex-grow p-3">
+            <SearchEngine onTextChanged={handleTextChange} />
           </div>
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-around">
             <button className="bg-blue-500 text-white px-4 py-2 rounded-full" onClick={previewBtnHandler}>
-              Generate Preview
+              Nounify
             </button>
           </div>
-          <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Image Cards */}
-              <div className="max-w-sm rounded overflow-hidden shadow-lg m-2">
-                <div className="aspect-w-1 aspect-h-1">
-                  <img className="w-full object-cover" src="image1.jpg" alt="Image 1" />
-                </div>
-              </div>
-              <div className="max-w-sm rounded overflow-hidden shadow-lg m-2">
-                <div className="aspect-w-1 aspect-h-1">
-                  <img className="w-full object-cover" src="image2.jpg" alt="Image 2" />
-                </div>
-              </div>
-              <div className="max-w-sm rounded overflow-hidden shadow-lg m-2">
-                <div className="aspect-w-1 aspect-h-1">
-                  <img className="w-full object-cover" src="image3.jpg" alt="Image 3" />
-                </div>
-              </div>
-            </div>
-
-            {/* CTA Button */}
-            <div className="flex justify-center mt-8">
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-full">Generate a contract</button>
-            </div>
+          <div className="max-w-4xl mx-auto flex flex-row">
+            {previewList.map(image => (
+              <ImageCard
+                onImgChosen={imgChosenCallback}
+                imgLink={image.imgLink}
+                altText={image.altText}
+                isActive={image.isActive}
+                key={image.id}
+                id={image.id}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center mt-8">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-full">Mint me!</button>
           </div>
         </div>
       </div>
-
-      {/* <div className="bg-base-300 w-full px-4 py-6">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-          </div>
-        </div> */}
     </>
   );
 };
