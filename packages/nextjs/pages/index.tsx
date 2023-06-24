@@ -17,19 +17,23 @@ const openai = new OpenAIApi(configuration);
 
 const initialContext = {
   role: messageRoleEnum.System,
-  content: `You are providing context to an image generating API using text input from the user. The goal is to arrive at a detailed prompt that will generate an image that matches the user's intent, drilling down progressively by identifying a specific theme the user wants to create generative art with. Try to identify a theme based on the user's feedback. Every time the user sends feedback, respond with 3 variations of the theme identified. For example, if the message is '''CryptoPunks as disney characters''' you might respond with '1. CryptoPunks in the art style of Mickey Mouse 2. CryptoPunks as disney princesses 3. CryptoPunks if they were in Tarzan'. You are not having a conversation with the user, but are mimicking them and trying to create 3 versions of their idea every time a message is sent. The assistant response will ALWAYS follow this format: '1. [variation 1] 2. [variation 2] 3. [variation 3]' with no other information. Here is an example of a successful conversation:
-  User: CryptoPunks as samurais
-  Assistant: [
-    CryptoPunks reimagined as samurais from the Edo period,
-    CryptoPunks as futuristic samurais in a cyberpunk world,
-    CryptoPunks stylized in the aesthetic of a traditional Japanese samurai scroll painting,
-  ]
-  User: CryptoPunks as futuristic samurais in a cyberpunk world
-  Assistant: [
-    CryptoPunks as samurais wielding high-tech weaponry in a neon-lit, cyberpunk cityscape.
-    CryptoPunks as robotic samurais in a dystopian cyberpunk universe.
-    CryptoPunks as samurais in a VR-induced, matrix-like cyberpunk world
-  ]
+  content: `You will identify a theme based on the user input, and you will generate a list of values for each trait related to that theme. Generate 12 values for each trait. For ALL of your responses, do not include anything other than the data modal. Never add information describing your response that isn't part of the data model, such as 'Sure! Here are 12 values for each trait related to the theme of Christmas:'. I defined the data model as a JSON object for the assistant response below.
+  {
+    head: Array<string>,
+    eyes: Array<string>,
+    body: Array<string>,
+    background: Array<string>,
+  }
+
+  Below is an example of a successful user-assistant interaction:
+  User: christmas
+  Assistant: 
+  {
+    "head": ["Santa hat", "Reindeer antlers", "Elf hat", "Snowman top hat", "Christmas tree headband", "Candy cane headband", "Light-up tree headband", "Gingerbread man headband", "Angel halo", "Star headband", "Nutcracker headband", "Grinch headband"],
+    "eyes": ["Wreath glasses", "Christmas tree glasses", "Santa glasses", "Elf glasses", "Reindeer glasses", "Snowman glasses", "Candy cane glasses", "Holly glasses", "Angel wing glasses", "Grinch glasses", "Jingle bell glasses", "Penguin glasses"],
+    "body": ["Ugly Christmas sweater", "Santa Claus suit", "Elf costume", "Reindeer onesie", "Snowman outfit", "Mrs. Claus dress", "Gingerbread man suit", "Christmas tree dress", "Nutcracker outfit", "Angel costume", "Grinch jumpsuit", "Christmas pajamas"],
+    "background": ["Snowy landscape", "Christmas tree farm", "Living room with stockings", "Gingerbread house", "Sleigh ride in the moonlight", "Ice skating on a frozen pond", "Christmas market", "Candy cane forest", "North Pole workshop", "Roasting chestnuts on an open fire", "Decorating the Christmas tree", "A cozy fireplace"]
+  }
   `,
 };
 
@@ -53,7 +57,7 @@ const Home: NextPage = () => {
         const response = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: messageLog,
-          max_tokens: 80,
+          max_tokens: 400,
           n: 1,
           stop: undefined,
           temperature: 1,
@@ -66,6 +70,7 @@ const Home: NextPage = () => {
           });
         }
         console.log(gptResponse);
+        console.log(messageLog);
       } catch (error) {
         console.error(`Error occurred during API call: ${error}`);
       }
