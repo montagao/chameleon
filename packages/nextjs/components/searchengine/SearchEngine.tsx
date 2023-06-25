@@ -2,9 +2,10 @@ import React, { FC } from "react";
 
 interface SearchInputProps {
   onTextChanged: (text: string) => void;
+  onKeyPress: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
-const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
+const SearchInput: FC<SearchInputProps> = ({ onTextChanged, onKeyPress }) => {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <img src="/assets/searchbot.svg" />
@@ -21,6 +22,7 @@ const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
           paddingInlineStart: "0.5rem",
         }}
         placeholder="artistic rainbow yarn"
+        onKeyDown={event => onKeyPress(event)}
         onChange={event => onTextChanged(event.target.value)}
       />
     </div>
