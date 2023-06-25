@@ -1,4 +1,4 @@
-# 🏗 Chameleon
+# 🦎  Chameleon
 
 AI Generative NFTs made easy!
 
