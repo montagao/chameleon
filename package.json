@@ -37,6 +37,7 @@
     "usehooks-ts@^2.7.2": "patch:usehooks-ts@npm:^2.7.2#./.yarn/patches/usehooks-ts-npm-2.7.2-fceffe0e43.patch"
   },
   "dependencies": {
+    "@worldcoin/idkit": "^0.5.1",
     "axios": "^1.4.0"
   }
 }
