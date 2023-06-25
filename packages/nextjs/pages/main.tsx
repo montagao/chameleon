@@ -187,39 +187,68 @@ const Home: NextPage = () => {
         }
     };
 
-    return (
-        <>
-            <MetaHeader />
-            <div className="flex flex-col items-center justify-center flex-grow">
-                <div className="flex flex-col justify-center gap-5">
-                    <div className="flex flex-grow p-3">
-                        <SearchEngine onTextChanged={handleTextChange} />
-                    </div>
-                    <div className="flex justify-around">
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded-full" onClick={previewBtnHandler}>
-                            Nounify
-                        </button>
-                    </div>
-                    <div className="max-w-4xl mx-auto flex flex-row">
-                        {previewList.map((img: NFTMetaData) => (
-                            <ImageCard
-                                onImgChosen={imgChosenCallback}
-                                imgLink={img.image}
-                                altText={img.name}
-                                isActive={img.image === activeImage}
-                                key={img.image}
-                            />
-                        ))}
-                    </div>
-                    <div className="flex justify-center mt-8">
-                        <button onClick={() => handleMint()} className="bg-blue-500 text-white px-4 py-2 rounded-full">
-                            Mint me!
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+    currentPromptInput = "";
+
+  return (
+    <>
+      <MetaHeader />
+      <div className="flex flex-col items-center justify-center flex-grow">
+        <div className="flex flex-col justify-center gap-5">
+          <div className="flex">
+            <img src="/assets/nounsmeleon.svg" />
+            <img src="/assets/nounsmeleon_wordmark.svg" alt="Nounsmeleon" />
+          </div>
+          <div style={{marginTop:"-4rem", marginLeft: "13rem"}}>
+            <img src="/assets/motto.svg" alt="Generative NFTs made easy" />
+          </div>
+          <div className="flex flex-grow p-3">
+            <SearchEngine onTextChanged={handleTextChange} />
+            <button style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px"}} className="outline-black outline-1 text-black px-4 py-2 flex items-center" onClick={previewBtnHandler}>
+              <img style={{marginRight: "8px"}} src="/assets/nounsify.svg"/>
+              <span>Nounsify!</span>
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <button style={{ backgroundImage: "linear-gradient(270deg, #D9FFD3 0%, #D5D7E1 100%)", marginRight: "2rem"}} className="text-black px-4 py-2 flex items-center">
+              <img style={{marginRight: "8px"}} src="/assets/surprise_duck.svg"/>
+              <span>Surprise Me!</span>
+            </button>
+            <button style={{ backgroundImage: "linear-gradient(270deg, #D9FFD3 0%, #D5D7E1 100%)"}} className="text-black px-4 py-2 flex items-center">
+              <img style={{marginRight: "8px"}} src="/assets/guide_hat.svg"/>
+              <span>Guide</span>
+            </button>
+          </div>
+          <div className="max-w-4xl mx-auto flex flex-row">
+            {previewList.map((img: NFTMetaData) => (
+              <ImageCard
+                onImgChosen={imgChosenCallback}
+                imgLink={img.image}
+                altText={img.name}
+                isActive={img.image === activeImage}
+                key={img.image}
+              />
+            ))}
+          </div>
+          <div className="max-w-4xl mx-auto flex flex-row">
+              {previewList.map((img: NFTMetaData) => (
+                  <ImageCard
+                      onImgChosen={imgChosenCallback}
+                      imgLink={img.image}
+                      altText={img.name}
+                      isActive={img.image === activeImage}
+                      key={img.image}
+                  />
+              ))}
+          </div>
+          <div className="flex justify-center mt-8">
+            <button onClick={() => handleMint()} className="bg-blue-500 text-white px-4 py-2 rounded-full">
+              Mint me!
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default Home;

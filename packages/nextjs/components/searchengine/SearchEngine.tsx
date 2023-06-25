@@ -6,11 +6,14 @@ interface SearchInputProps {
 
 const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
   return (
-    <div className="px-4 py-2 bg-gray-200 rounded-lg w-full">
+    <div style={{display: 'flex', alignItems: 'center'}}>
+      <img src="/assets/searchbot.svg" />
+
       <textarea
-        className="min-w-[400px] bg-transparent outline-none placeholder-gray-500 resize-none"
+        className="min-w-[500px] outline-black outline-1 placeholder-gray-500 resize-none"
         rows={2}
-        placeholder="Halloween"
+        style={{flexGrow: 1, color: "black", verticalAlign: "middle", height: "57px", lineHeight: "57px", paddingInlineStart: "0.5rem"}}
+        placeholder="What kind of Nouns NFTs are you trying to make?"
         onChange={event => onTextChanged(event.target.value)}
       />
     </div>
