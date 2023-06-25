@@ -70,6 +70,7 @@ const Home: NextPage = () => {
   const [isAPILoading, setIsAPILoading] = React.useState(false);
   const [activeImage, setActiveImage] = React.useState<string | null>(null);
   const [previewList, setPreviewList] = React.useState<NFTMetaData[]>([]);
+  const [isMinted, setIsMinted] = React.useState(false);
   const { address } = useAccount();
   const { writeAsync, isLoading, isMining } = useScaffoldContractWrite({
     contractName: "ChameleonContract",
@@ -84,8 +85,7 @@ const Home: NextPage = () => {
       console.log("Transaction blockHash wE DID IT REDDIT", txnReceipt.blockHash);
     },
   });
-  const [messageLog, setMessageLog] = React.useState<ChatCompletionRequestMessage[]>([initialContext]);
-  const [previewMode, setPreviewMode] = React.useState(false);
+  const [previewMode, setPreviewMode] = React.useState(true);
   let currentPromptInput = "";
 
   const fetchNFTData = async (urls: string[]): Promise<NFTMetaData[]> => {
@@ -122,7 +122,7 @@ const Home: NextPage = () => {
 
   const fetchNFTURLs = async (payload: string) => {
     try {
-      const response = await fetch("http://31.12.82.146:14350/generate", {
+      const response = await fetch("https://api.chameleon.wtf:14350/generate", {
         method: "POST", // or 'POST'
         headers: {
           "Content-Type": "application/json",
@@ -146,8 +146,8 @@ const Home: NextPage = () => {
   };
 
   const previewBtnHandler = async () => {
-    if (!previewMode) {
-      setPreviewMode(true);
+    if (previewMode) {
+      setPreviewMode(false);
     }
     fetchNFTURLs(constructPayload(currentPromptInput));
   };
@@ -175,13 +175,17 @@ const Home: NextPage = () => {
       <MetaHeader />
       <div className="flex flex-col items-center justify-center flex-grow">
         <div className="flex flex-col justify-center gap-5">
-          <div className="flex">
-            <img src="/assets/nounsmeleon.svg" />
-            <img src="/assets/nounsmeleon_wordmark.svg" alt="Nounsmeleon" />
-          </div>
-          <div style={{ marginTop: "-4rem", marginLeft: "13rem" }}>
-            <img src="/assets/motto.svg" alt="Generative NFTs made easy" />
-          </div>
+          <>
+            <div className="flex">
+              <img src="/assets/nounsmeleon.svg" />
+              <img src="/assets/nounsmeleon_wordmark.svg" alt="Nounsmeleon" />
+            </div>
+            <div style={{ marginTop: "-4rem", marginLeft: "13rem" }}>
+              <img src="/assets/motto.svg" alt="Generative NFTs made easy" />
+            </div>
+          </>
+
+          <></>
           <div className="flex flex-grow p-3">
             <SearchEngine onTextChanged={handleTextChange} />
             <button
