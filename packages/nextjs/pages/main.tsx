@@ -89,7 +89,6 @@ const Home: NextPage = () => {
   let currentPromptInput = "";
 
   const fetchNFTData = async (urls: string[]): Promise<NFTMetaData[]> => {
-    console.log(urls);
     try {
       const fetchPromises = urls.map(url =>
         fetch(url)
@@ -121,6 +120,7 @@ const Home: NextPage = () => {
   };
 
   const fetchNFTURLs = async (payload: string) => {
+    setIsAPILoading(true);
     try {
       const response = await fetch("https://api.chameleon.wtf:14350/generate", {
         method: "POST", // or 'POST'
@@ -138,6 +138,7 @@ const Home: NextPage = () => {
       const nftURLs = nftURLResponse?.urls ?? [];
       const nftData = await fetchNFTData(nftURLs);
       setPreviewList(nftData);
+      console.log("setting api loading false");
       setIsAPILoading(false);
     } catch (error) {
       setIsAPILoading(false);
@@ -160,9 +161,14 @@ const Home: NextPage = () => {
     setActiveImage(imgLink);
   };
 
-  const handleMint = async () => {
+  const handleMint = () => {
+    console.log("does this ever happeeeeeen");
     try {
-      await writeAsync();
+      setTimeout(() => {
+        console.log("does this ever happen");
+        setIsMinted(true);
+      }, 2000);
+      // await writeAsync();
     } catch (error) {
       console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
     }
@@ -184,59 +190,66 @@ const Home: NextPage = () => {
               <img src="/assets/motto.svg" alt="Generative NFTs made easy" />
             </div>
           </>
-
-          <></>
-          <div className="flex flex-grow p-3">
-            <SearchEngine onTextChanged={handleTextChange} />
-            <button
-              style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px" }}
-              className="outline-black outline-1 text-black px-4 py-2 flex items-center"
-              onClick={previewBtnHandler}
-            >
-              <img style={{ marginRight: "8px" }} src="/assets/nounsify.svg" />
-              <span>Nounsify!</span>
-            </button>
-          </div>
-
-          {!isAPILoading ? (
-            <>
-              {previewMode ? (
-                <>
-                  <div className="flex justify-center">
-                    <ImageButton
-                      onClick={() => fetchNFTURLs(constructPayload(""))}
-                      text="Surprise Me"
-                      imageUrl="/assets/surprise_duck.svg"
-                    />
-                    <ImageButton onClick={() => {}} text="Guide" imageUrl="/assets/guide_hat.svg" />
-                  </div>
-                </>
-              ) : null}
-
-              <div className="max-w-4xl mx-auto px-3 flex flex-row">
-                {previewList.map((img: NFTMetaData) => (
-                  <ImageCard
-                    onImgChosen={imgChosenCallback}
-                    imgLink={img.image}
-                    altText={img.name}
-                    isActive={img.image === activeImage}
-                    key={img.image}
-                  />
-                ))}
-              </div>
-              {!previewMode ? (
-                <div className="flex flex-row justify-center gap-6">
-                  <ImageButton
-                    onClick={() => fetchNFTURLs(constructPayload(currentPromptInput))}
-                    text="Regenerate"
-                    imageUrl="/assets/regenerate.svg"
-                  />
-                  <ImageButton onClick={() => handleMint()} text="Select to Mint" imageUrl="/assets/tomint.svg" />
-                </div>
-              ) : null}
-            </>
+          {isMinted && activeImage !== null ? (
+            <div className="flex flex-col items-center justify-center">
+              <ImageCard imgLink={activeImage} altText="Minted Image" onImgChosen={imgChosenCallback} isActive={true} />
+              <h2 className="text-2xl mt-4">Here is your shiny new Noun!</h2>
+            </div>
           ) : (
-            <LoadingContainer isLoading={isAPILoading} />
+            <>
+              <div className="flex flex-grow p-3">
+                <SearchEngine onTextChanged={handleTextChange} />
+                <button
+                  style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px" }}
+                  className="outline-black outline-1 text-black px-4 py-2 flex items-center"
+                  onClick={previewBtnHandler}
+                >
+                  <img style={{ marginRight: "8px" }} src="/assets/nounsify.svg" />
+                  <span>Nounsify!</span>
+                </button>
+              </div>
+
+              {!isAPILoading ? (
+                <>
+                  {previewMode ? (
+                    <>
+                      <div className="flex justify-center gap-4">
+                        <ImageButton
+                          onClick={() => fetchNFTURLs(constructPayload(""))}
+                          text="Surprise Me"
+                          imageUrl="/assets/surprise_duck.svg"
+                        />
+                        <ImageButton onClick={() => {}} text="Guide" imageUrl="/assets/guide_hat.svg" />
+                      </div>
+                    </>
+                  ) : null}
+
+                  <div className="max-w-4xl mx-auto px-3 flex flex-row">
+                    {previewList.map((img: NFTMetaData) => (
+                      <ImageCard
+                        onImgChosen={imgChosenCallback}
+                        imgLink={img.image}
+                        altText={img.name}
+                        isActive={img.image === activeImage}
+                        key={img.image}
+                      />
+                    ))}
+                  </div>
+                  {!previewMode ? (
+                    <div className="flex flex-row justify-center gap-6">
+                      <ImageButton
+                        onClick={() => fetchNFTURLs(constructPayload(currentPromptInput))}
+                        text="Regenerate"
+                        imageUrl="/assets/regenerate.svg"
+                      />
+                      <ImageButton onClick={handleMint} text="Select to Mint" imageUrl="/assets/tomint.svg" />
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <LoadingContainer isLoading={isAPILoading} />
+              )}
+            </>
           )}
         </div>
       </div>
