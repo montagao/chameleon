@@ -32,36 +32,14 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div>
+              Made with <HeartIcon className="inline-block h-4 w-4" /> for {" "}
               <a
-                href="https://github.com/scaffold-eth/se-2"
+                href="https://ethglobal.com/events/waterloo2023"
                 target="_blank"
                 rel="noreferrer"
                 className="underline underline-offset-2"
               >
-                Fork me
-              </a>
-            </div>
-            <span>·</span>
-            <div>
-              Built with <HeartIcon className="inline-block h-4 w-4" /> at 🏰{" "}
-              <a
-                href="https://buidlguidl.com/"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2"
-              >
-                BuidlGuidl
-              </a>
-            </div>
-            <span>·</span>
-            <div>
-              <a
-                href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA"
-                target="_blank"
-                rel="noreferrer"
-                className="underline underline-offset-2"
-              >
-                Support
+                ETHGlobal Waterloo 2023
               </a>
             </div>
           </div>
