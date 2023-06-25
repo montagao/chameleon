@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@worldcoin/idkit": "^0.5.1",
+    "@openzeppelin/contracts": "^4.9.2",
     "axios": "^1.4.0"
   }
 }
