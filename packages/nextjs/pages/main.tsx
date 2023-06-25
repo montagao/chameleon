@@ -161,7 +161,7 @@ const Home: NextPage = () => {
 
         const fetchNFTURLs = async (payload: string) => {
             try {
-                const response = await fetch("https://api.chameleon.com:14350/generate", {
+                const response = await fetch("https://api.chameleon.wtf:14350/generate", {
                     method: "POST", // or 'POST'
                     headers: {
                         "Content-Type": "application/json",
