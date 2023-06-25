@@ -11,7 +11,8 @@ https://github.com/montagao/chameleon-backend
 
 
 # local dev
+```
 yarn install
 yarn start
-
+```
 
