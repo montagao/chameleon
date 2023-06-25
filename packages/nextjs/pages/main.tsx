@@ -161,7 +161,7 @@ const Home: NextPage = () => {
 
         const fetchNFTURLs = async (payload: string) => {
             try {
-                const response = await fetch("http://31.12.82.146:14350/generate", {
+                const response = await fetch("https://api.chameleon.wtf:14350/generate", {
                     method: "POST", // or 'POST'
                     headers: {
                         "Content-Type": "application/json",
@@ -176,6 +176,7 @@ const Home: NextPage = () => {
                 const nftURLResponse = await response.json();
                 const nftURLs = nftURLResponse?.urls ?? [];
                 const nftData = await fetchNFTData(nftURLs);
+                console.log(nftData);
                 setPreviewList(nftData);
             } catch (error) {
                 console.error("There was an error!", error);
@@ -250,17 +251,6 @@ const Home: NextPage = () => {
                 key={img.image}
               />
             ))}
-          </div>
-          <div className="max-w-4xl mx-auto flex flex-row">
-              {previewList.map((img: NFTMetaData) => (
-                  <ImageCard
-                      onImgChosen={imgChosenCallback}
-                      imgLink={img.image}
-                      altText={img.name}
-                      isActive={img.image === activeImage}
-                      key={img.image}
-                  />
-              ))}
           </div>
           <div className="flex justify-center mt-8">
             <button onClick={() => handleMint()} className="bg-blue-500 text-white px-4 py-2 rounded-full">
