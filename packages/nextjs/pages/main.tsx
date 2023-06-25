@@ -156,8 +156,19 @@ const Home: NextPage = () => {
     currentPromptInput = text;
   };
 
+  const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      previewBtnHandler();
+    }
+  };
+
   const imgChosenCallback = (imgLink: string) => {
     setActiveImage(imgLink);
+  };
+
+  const returnToLoopState = () => {
+    setIsMinted(false);
+    fetchNFTURLs(constructPayload(""));
   };
 
   const handleMint = async () => {
@@ -189,11 +200,16 @@ const Home: NextPage = () => {
             <div className="flex flex-col items-center justify-center">
               <ImageCard imgLink={activeImage} altText="Minted Image" onImgChosen={imgChosenCallback} isActive={true} />
               <h2 className="text-2xl mt-4">Here is your shiny new Noun!</h2>
+              <ImageButton
+                onClick={returnToLoopState}
+                text="Generate more!"
+                imageUrl="/assets/crystalball.svg"
+              ></ImageButton>
             </div>
           ) : (
             <>
               <div className="flex flex-grow p-3">
-                <SearchEngine onTextChanged={handleTextChange} />
+                <SearchEngine onKeyPress={handleEnterKey} onTextChanged={handleTextChange} />
                 <button
                   style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px" }}
                   className="outline-black outline-1 text-black px-4 py-2 flex items-center"
@@ -210,7 +226,7 @@ const Home: NextPage = () => {
                     <>
                       <div className="flex justify-center gap-4">
                         <ImageButton
-                          onClick={() => fetchNFTURLs(constructPayload(""))}
+                          onClick={returnToLoopState}
                           text="Surprise Me"
                           imageUrl="/assets/surprise_duck.svg"
                         />
