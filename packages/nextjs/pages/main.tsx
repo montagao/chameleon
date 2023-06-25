@@ -22,12 +22,12 @@ type StableDiffusionPayload = {
 
 // Proompt
 const configuration = new Configuration({
-    apiKey: "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",
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 const initialContext = {
     role: messageRoleEnum.System,
-    content: `You will identify a theme based on the user input, and you will generate a list of values for each trait related to that theme. Generate 2 values for each trait. For ALL of your responses, do not include anything other than the data modal.
+    content: `You will identify a theme based on the user input, and you will generate a list of values related to that theme. Generate 2 values for each trait. For ALL of your responses, do not include anything other than the data model.
 
   export interface StableDiffusionPayload {
     head: Array<string>;
@@ -36,14 +36,28 @@ const initialContext = {
     accessories: Array<string>;
   }
 
-  Below is an example of a response following the above payload model. The response should NEVER include anything outside the curly braces. Do not supply additional info that doesn't follow the payload model.
+  Below is an example of a response following the above payload model. The response should NEVER include anything outside the curly braces. 
+  DO NOT WRITE ANYTHING OUTSIDE THE CURLY BRACES. DO NOT REPEAT THE INPUT
 
+  Example: correct output denoted in the & symbols below for input of "materials type of nft":
+  &
   {
-    "head": ["Santa hat", "Reindeer antlers"],
-    "eyes": ["Wreath glasses", "Jingle bell glasses"],
-    "body": ["Ugly Christmas sweater", "Santa Claus suit"],
-    "accessories": ["Candy cane", "Mistletoe"]
+    "head": ["yarn", "string"],
+    "glasses": ["beans", "beads"],
+    "body": ["paper art", "plush"],
+    "accessories": ["construction paper", "playdoh"]
   }
+  &
+  &
+  {
+    "head": ["skin", "spiky"],
+    "glasses": ["beans", "beads"],
+    "body": ["paper art", "plush"],
+    "accessories": ["construction paper", "playdoh"]
+  }
+  &
+
+
   `,
 };
 
@@ -105,6 +119,7 @@ const Home: NextPage = () => {
                         content: gptResponse,
                     };
                     setMessageLog([...messageLog, assistantMessage]);
+                    console.log(gptResponse);
                     fetchNFTURLs(gptResponse);
                 }
             } catch (error) {
@@ -144,7 +159,7 @@ const Home: NextPage = () => {
             }
         };
 
-        const fetchNFTURLs = async (payload: StableDiffusionPayload) => {
+        const fetchNFTURLs = async (payload: string) => {
             try {
                 const response = await fetch("http://31.12.82.146:14350/generate", {
                     method: "POST", // or 'POST'
@@ -166,9 +181,16 @@ const Home: NextPage = () => {
                 console.error("There was an error!", error);
             }
         };
-        fetchAndLog();
+        //fetchAndLog();
+        fetchNFTURLs(`{
+            "head": ["${currentPromptInput}"],
+            "glasses": ["${currentPromptInput}"],
+            "body": ["${currentPromptInput}"],
+            "accessories": ["${currentPromptInput}"]
 
-        currentPromptInput = "";
+            }`
+        );
+
     };
 
     const handleTextChange = (text: string) => {
