@@ -9,53 +9,70 @@ import {
 import { MetaHeader } from "~~/components/MetaHeader";
 import { ImageCard } from "~~/components/imagecontainer/ImageCard";
 import SearchEngine from "~~/components/searchengine/SearchEngine";
-import { ImageCardDTO } from "~~/models/models";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { NFTMetaData, StableDiffusionPayload } from "~~/models/models";
+
+type StableDiffusionPayload = {
+  [key: string]: any;
+};
 
 // Proompt
 const configuration = new Configuration({
-  apiKey: "",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 const initialContext = {
   role: messageRoleEnum.System,
-  content: `You will identify a theme based on the user input, and you will generate a list of values for each trait related to that theme. Generate 12 values for each trait. For ALL of your responses, do not include anything other than the data modal. Never add information describing your response that isn't part of the data model, such as 'Sure! Here are 12 values for each trait related to the theme of Christmas:'. I defined the data model as a JSON object for the assistant response below.
-  {
-    head: Array<string>,
-    eyes: Array<string>,
-    body: Array<string>,
-    background: Array<string>,
+  content: `You will identify a theme based on the user input, and you will generate a list of values for each trait related to that theme. Generate 2 values for each trait. For ALL of your responses, do not include anything other than the data modal.
+
+  export interface StableDiffusionPayload {
+    head: Array<string>;
+    glasses: Array<string>;
+    body: Array<string>;
+    accessories: Array<string>;
   }
 
-  Below is an example of a successful user-assistant interaction:
-  User: christmas
-  Assistant: 
+  Below is an example of a response following the above payload model. The response should NEVER include anything outside the curly braces. Do not supply additional info that doesn't follow the payload model.
+
   {
-    "head": ["Santa hat", "Reindeer antlers", "Elf hat", "Snowman top hat", "Christmas tree headband", "Candy cane headband", "Light-up tree headband", "Gingerbread man headband", "Angel halo", "Star headband", "Nutcracker headband", "Grinch headband"],
-    "eyes": ["Wreath glasses", "Christmas tree glasses", "Santa glasses", "Elf glasses", "Reindeer glasses", "Snowman glasses", "Candy cane glasses", "Holly glasses", "Angel wing glasses", "Grinch glasses", "Jingle bell glasses", "Penguin glasses"],
-    "body": ["Ugly Christmas sweater", "Santa Claus suit", "Elf costume", "Reindeer onesie", "Snowman outfit", "Mrs. Claus dress", "Gingerbread man suit", "Christmas tree dress", "Nutcracker outfit", "Angel costume", "Grinch jumpsuit", "Christmas pajamas"],
-    "background": ["Snowy landscape", "Christmas tree farm", "Living room with stockings", "Gingerbread house", "Sleigh ride in the moonlight", "Ice skating on a frozen pond", "Christmas market", "Candy cane forest", "North Pole workshop", "Roasting chestnuts on an open fire", "Decorating the Christmas tree", "A cozy fireplace"]
+    "head": ["Santa hat", "Reindeer antlers"],
+    "eyes": ["Wreath glasses", "Jingle bell glasses"],
+    "body": ["Ugly Christmas sweater", "Santa Claus suit"],
+    "accessories": ["Candy cane", "Mistletoe"]
   }
   `,
 };
 
-// Placeholder stuff
-const imgLink =
-  "https://images.unsplash.com/photo-1496070242169-b672c576566b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1643&q=80";
-
-const imageCards: Array<ImageCardDTO> = Array.from({ length: 4 }, (_, index) => ({
-  imgLink,
-  altText: `Image ${index}`,
-  isActive: false,
-  id: `${index}`,
-}));
+// const imageCards: Array<ImageCardDTO> = Array.from({ length: 4 }, (_, index) => ({
+//   imgLink,
+//   altText: `Image ${index}`,
+//   isActive: false,
+//   id: `${index}`,
+//   URI: "",
+// }));
 
 const Home: NextPage = () => {
+  const [activeImage, setActiveImage] = React.useState<string | null>(null);
+  const [previewList, setPreviewList] = React.useState<NFTMetaData[]>([]);
+  const { writeAsync, isLoading, isMining } = useScaffoldContractWrite({
+    contractName: "ChameleonContract",
+    functionName: "safeMint",
+    args: [previewList.find(img => img.image === activeImage)?.URI ?? ""],
+    // For payable functions, expressed in ETH
+    value: "0.01",
+    // The number of block confirmations to wait for before considering transaction to be confirmed (default : 1).
+    blockConfirmations: 1,
+    // The callback function to execute when the transaction is confirmed.
+    onBlockConfirmation: txnReceipt => {
+      console.log("Transaction blockHash wE DID IT REDDIT", txnReceipt.blockHash);
+    },
+  });
+  const [messageLog, setMessageLog] = React.useState<ChatCompletionRequestMessage[]>([initialContext]);
   const [previewMode, setPreviewMode] = React.useState(false);
-  const [previewList, setPreviewList] = React.useState<ImageCardDTO[]>(imageCards);
-  const messageLog: ChatCompletionRequestMessage[] = [initialContext];
   let currentPromptInput = "";
 
-  const previewBtnHandler = () => {
+  const previewBtnHandler = async () => {
+    console.log("test", currentPromptInput);
     if (!previewMode) {
       setPreviewMode(true);
     }
@@ -63,7 +80,8 @@ const Home: NextPage = () => {
       role: messageRoleEnum.User,
       content: currentPromptInput,
     };
-    messageLog.push(userMessage);
+    setMessageLog([...messageLog, userMessage]);
+    console.log(messageLog);
 
     const fetchAndLog = async () => {
       try {
@@ -77,17 +95,74 @@ const Home: NextPage = () => {
         });
         const gptResponse = response.data.choices[0].message?.content;
         if (gptResponse) {
-          messageLog.push({
+          const assistantMessage = {
             role: messageRoleEnum.Assistant,
             content: gptResponse,
-          });
+          };
+          setMessageLog([...messageLog, assistantMessage]);
+          fetchNFTURLs(gptResponse);
         }
-        console.log(gptResponse);
       } catch (error) {
         console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
       }
     };
+
+    const fetchNFTData = async (urls: string[]): Promise<NFTMetaData[]> => {
+      console.log(urls);
+      try {
+        const fetchPromises = urls.map(url =>
+          fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              const metaData: NFTMetaData = {
+                description: data.description,
+                external_url: data.external_url,
+                image: data.image,
+                name: data.name,
+                attributes: data.attributes,
+                URI: url,
+              };
+              return metaData;
+            }),
+        );
+
+        const nftData: NFTMetaData[] = await Promise.all(fetchPromises);
+        return nftData;
+      } catch (error) {
+        console.error("There was an error!", error);
+        return [];
+      }
+    };
+
+    const fetchNFTURLs = async (payload: StableDiffusionPayload) => {
+      try {
+        const response = await fetch("http://31.12.82.146:14350/generate", {
+          method: "POST", // or 'POST'
+          headers: {
+            "Content-Type": "application/json",
+            // 'Authorization': 'Bearer ' + token, // if you need to send a token
+          },
+          body: payload.toString(), // if you're sending data
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const nftURLResponse = await response.json();
+        const nftURLs = nftURLResponse?.urls ?? [];
+        const nftData = await fetchNFTData(nftURLs);
+        setPreviewList(nftData);
+      } catch (error) {
+        console.error("There was an error!", error);
+      }
+    };
     fetchAndLog();
+
     currentPromptInput = "";
   };
 
@@ -95,11 +170,16 @@ const Home: NextPage = () => {
     currentPromptInput = text;
   };
 
-  const imgChosenCallback = (imgID: string) => {
-    const newPreviewList = previewList.map(img => {
-      return { ...img, isActive: img.id === imgID };
-    });
-    setPreviewList(newPreviewList);
+  const imgChosenCallback = (imgLink: string) => {
+    setActiveImage(imgLink);
+  };
+
+  const handleMint = async () => {
+    try {
+      await writeAsync();
+    } catch (error) {
+      console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
+    }
   };
 
   return (
@@ -116,19 +196,20 @@ const Home: NextPage = () => {
             </button>
           </div>
           <div className="max-w-4xl mx-auto flex flex-row">
-            {previewList.map(image => (
+            {previewList.map((img: NFTMetaData) => (
               <ImageCard
                 onImgChosen={imgChosenCallback}
-                imgLink={image.imgLink}
-                altText={image.altText}
-                isActive={image.isActive}
-                key={image.id}
-                id={image.id}
+                imgLink={img.image}
+                altText={img.name}
+                isActive={img.image === activeImage}
+                key={img.image}
               />
             ))}
           </div>
           <div className="flex justify-center mt-8">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-full">Mint me!</button>
+            <button onClick={() => handleMint()} className="bg-blue-500 text-white px-4 py-2 rounded-full">
+              Mint me!
+            </button>
           </div>
         </div>
       </div>
