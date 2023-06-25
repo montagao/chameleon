@@ -9,75 +9,79 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
  * Custom Wagmi Connect Button (watch balance + custom design)
  */
 export const RainbowKitCustomConnectButton = () => {
-  useAutoConnect();
-  const userId = typeof window !== "undefined" ? window.localStorage.getItem('userId') : "";
-  const displayUserId = typeof userId === "string" ? `${userId.substring(0, 6)}...${userId.substring(userId.length - 4)}` : "";
+    useAutoConnect();
+    const userId = typeof window !== "undefined" ? window.localStorage.getItem('userId') : "";
+    const displayUserId = typeof userId === "string" ? `${userId.substring(0, 6)}...${userId.substring(userId.length - 4)}` : "";
 
-  const networkColor = useNetworkColor();
-  const configuredNetwork = getTargetNetwork();
-  const { disconnect } = useDisconnect();
-  const { switchNetwork } = useSwitchNetwork();
+    const networkColor = useNetworkColor();
+    const configuredNetwork = getTargetNetwork();
+    const { disconnect } = useDisconnect();
+    const { switchNetwork } = useSwitchNetwork();
 
-  return (
-    <ConnectButton.Custom>
-      {({ account, chain, openAccountModal, openConnectModal, mounted }) => {
-        const connected = mounted && account && chain;
+    return (
+        <ConnectButton.Custom>
+            {({ account, chain, openAccountModal, openConnectModal, mounted }) => {
+                const connected = mounted && account && chain;
 
-        return (
-          <>
-            {(() => {
-              if (!connected) {
-                return;
-              }
-
-              if (chain.unsupported || chain.id !== configuredNetwork.id) {
                 return (
-                  <div className="dropdown dropdown-end">
-                    <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle">
-                      <span>Wrong network</span>
-                      <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
-                    </label>
-                    <ul tabIndex={0} className="dropdown-content menu p-2 mt-1 shadow-lg bg-base-100 rounded-box">
-                      <li>
-                        <button
-                          className="menu-item"
-                          type="button"
-                          onClick={() => switchNetwork?.(configuredNetwork.id)}
-                        >
-                          <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
-                          <span className="whitespace-nowrap">
-                            Switch to <span style={{ color: networkColor }}>{configuredNetwork.name}</span>
-                          </span>
-                        </button>
-                      </li>
-                      <li>
-                        <button className="menu-item text-error" type="button" onClick={() => disconnect()}>
-                          <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                );
-              }
+                    <>
+                        {(() => {
+                            if (!connected) {
+                                return (
+                                    <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
+                                        Connect Wallet
+                                    </button>
+                                );
+                            }
 
-              return (
-                <div className="px-2 flex justify-end items-center">
-                  <div className="flex justify-center items-center border-1 rounded-lg">
-                    <button
-                      onClick={openAccountModal}
-                      type="button"
-                      className="btn btn-secondary btn-sm pl-0 pr-2 shadow-md"
-                    >
-                      <BlockieAvatar address={userId} size={24} />
-                      <span className="ml-2 mr-1">{displayUserId}</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
-          </>
-        );
-      }}
-    </ConnectButton.Custom>
-  );
+                            if (chain.unsupported || chain.id !== configuredNetwork.id) {
+                                return (
+                                    <div className="dropdown dropdown-end">
+                                        <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle">
+                                            <span>Wrong network</span>
+                                            <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
+                                        </label>
+                                        <ul tabIndex={0} className="dropdown-content menu p-2 mt-1 shadow-lg bg-base-100 rounded-box">
+                                            <li>
+                                                <button
+                                                    className="menu-item"
+                                                    type="button"
+                                                    onClick={() => switchNetwork?.(configuredNetwork.id)}
+                                                >
+                                                    <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
+                                                    <span className="whitespace-nowrap">
+                                                        Switch to <span style={{ color: networkColor }}>{configuredNetwork.name}</span>
+                                                    </span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button className="menu-item text-error" type="button" onClick={() => disconnect()}>
+                                                    <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div className="px-2 flex justify-end items-center">
+                                    <div className="flex justify-center items-center border-1 rounded-lg">
+                                        <button
+                                            onClick={openAccountModal}
+                                            type="button"
+                                            className="btn btn-secondary btn-sm pl-0 pr-2 shadow-md"
+                                        >
+                                            <BlockieAvatar address={userId} size={24} />
+                                            <span className="ml-2 mr-1">{displayUserId}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+                    </>
+                );
+            }}
+        </ConnectButton.Custom>
+    );
 };
