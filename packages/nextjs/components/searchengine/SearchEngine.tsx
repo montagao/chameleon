@@ -13,7 +13,7 @@ const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
         className="min-w-[500px] outline-black outline-1 placeholder-gray-500 resize-none"
         rows={2}
         style={{flexGrow: 1, color: "black", verticalAlign: "middle", height: "57px", lineHeight: "57px", paddingInlineStart: "0.5rem"}}
-        placeholder="What kind of Nouns NFTs are you trying to make?"
+        placeholder="artistic rainbow yarn"
         onChange={event => onTextChanged(event.target.value)}
       />
     </div>
