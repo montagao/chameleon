@@ -39,24 +39,6 @@ export const Header = () => {
       <li>
         <NavLink href="/main">Home</NavLink>
       </li>
-      <li>
-        <NavLink href="/debug">
-          <BugAntIcon className="h-4 w-4" />
-          Debug Contracts
-        </NavLink>
-      </li>
-      <li>
-        <NavLink href="/example-ui">
-          <SparklesIcon className="h-4 w-4" />
-          test
-        </NavLink>
-      </li>
-      <li>
-        <NavLink href="/blockexplorer">
-          <MagnifyingGlassIcon className="h-4 w-4" />
-          Block Explorer
-        </NavLink>
-      </li>
     </>
   );
 
@@ -85,20 +67,18 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6">
+        <Link href="/main" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6">
           <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
+            <Image alt="SE2 logo" className="cursor-pointer" fill src="/assets/chameleon.svg" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-eth</span>
-            <span className="text-xs">Ethereum dev stack</span>
+            <span className="font-bold leading-tight">Chameleon</span>
+            <span className="text-xs">Generative NFTs made easy</span>
           </div>
         </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">{navLinks}</ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
         <RainbowKitCustomConnectButton />
-        <FaucetButton />
       </div>
     </div>
   );

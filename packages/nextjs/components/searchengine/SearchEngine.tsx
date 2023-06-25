@@ -20,7 +20,7 @@ const SearchInput: FC<SearchInputProps> = ({ onTextChanged }) => {
           lineHeight: "57px",
           paddingInlineStart: "0.5rem",
         }}
-        placeholder="What kind of Nouns NFTs are you trying to make?"
+        placeholder="artistic rainbow yarn"
         onChange={event => onTextChanged(event.target.value)}
       />
     </div>
