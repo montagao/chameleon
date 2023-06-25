@@ -138,7 +138,6 @@ const Home: NextPage = () => {
       const nftURLs = nftURLResponse?.urls ?? [];
       const nftData = await fetchNFTData(nftURLs);
       setPreviewList(nftData);
-      console.log("setting api loading false");
       setIsAPILoading(false);
     } catch (error) {
       setIsAPILoading(false);
@@ -161,14 +160,10 @@ const Home: NextPage = () => {
     setActiveImage(imgLink);
   };
 
-  const handleMint = () => {
-    console.log("does this ever happeeeeeen");
+  const handleMint = async () => {
     try {
-      setTimeout(() => {
-        console.log("does this ever happen");
-        setIsMinted(true);
-      }, 2000);
-      // await writeAsync();
+      await writeAsync();
+      setIsMinted(true);
     } catch (error) {
       console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
     }
