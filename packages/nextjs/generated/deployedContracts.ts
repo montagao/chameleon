@@ -4,7 +4,7 @@ const contracts = {
       chainId: "31337",
       name: "localhost",
       contracts: {
-        YourContract: {
+        ChameleonContract: {
           address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           abi: [
             {
@@ -96,7 +96,7 @@ const contracts = {
                   type: "string",
                 },
               ],
-              name: "setGreeting",
+              name: "safeMint",
               outputs: [],
               stateMutability: "payable",
               type: "function",

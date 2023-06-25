@@ -21,17 +21,17 @@ export const ContractData = () => {
   const greetingRef = useRef<HTMLDivElement>(null);
 
   const { data: totalCounter } = useScaffoldContractRead({
-    contractName: "YourContract",
+    contractName: "ChameleonContract",
     functionName: "totalCounter",
   });
 
   const { data: currentGreeting, isLoading: isGreetingLoading } = useScaffoldContractRead({
-    contractName: "YourContract",
+    contractName: "ChameleonContract",
     functionName: "greeting",
   });
 
   useScaffoldEventSubscriber({
-    contractName: "YourContract",
+    contractName: "ChameleonContract",
     eventName: "GreetingChange",
     listener: (greetingSetter, newGreeting, premium, value) => {
       console.log(greetingSetter, newGreeting, premium, value);
@@ -43,7 +43,7 @@ export const ContractData = () => {
     isLoading: isLoadingEvents,
     error: errorReadingEvents,
   } = useScaffoldEventHistory({
-    contractName: "YourContract",
+    contractName: "ChameleonContract",
     eventName: "GreetingChange",
     fromBlock: Number(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) || 0,
     filters: { greetingSetter: address },
@@ -52,8 +52,8 @@ export const ContractData = () => {
 
   console.log("Events:", isLoadingEvents, errorReadingEvents, myGreetingChangeEvents);
 
-  const { data: yourContract } = useScaffoldContract({ contractName: "YourContract" });
-  console.log("yourContract: ", yourContract);
+  const { data: ChameleonContract } = useScaffoldContract({ contractName: "ChameleonContract" });
+  console.log("ChameleonContract: ", ChameleonContract);
 
   const { showAnimation } = useAnimationConfig(totalCounter);
 
