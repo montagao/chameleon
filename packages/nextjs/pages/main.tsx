@@ -82,7 +82,7 @@ const Home: NextPage = () => {
     blockConfirmations: 1,
     // The callback function to execute when the transaction is confirmed.
     onBlockConfirmation: txnReceipt => {
-      console.log("Transaction blockHash wE DID IT REDDIT", txnReceipt.blockHash);
+      console.log("Transaction blockHash", txnReceipt.blockHash);
     },
   });
   const [previewMode, setPreviewMode] = React.useState(true);
@@ -176,11 +176,9 @@ const Home: NextPage = () => {
       await writeAsync();
       setIsMinted(true);
     } catch (error) {
-      console.error(`Error occurred during API call: ${error}. Damn that sucks.`);
+      console.error(`Error occurred during API call: ${error}.`);
     }
   };
-
-  currentPromptInput = "";
 
   return (
     <>
@@ -230,7 +228,7 @@ const Home: NextPage = () => {
                           text="Surprise Me"
                           imageUrl="/assets/surprise_duck.svg"
                         />
-                        <ImageButton onClick={() => {}} text="Guide" imageUrl="/assets/guide_hat.svg" />
+                        <ImageButton onClick={() => { }} text="Guide" imageUrl="/assets/guide_hat.svg" />
                       </div>
                     </>
                   ) : null}
