@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import {
   ChatCompletionRequestMessage,
@@ -12,49 +12,49 @@ import { LoadingContainer } from "~~/components/LoadingContainer";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { ImageCard } from "~~/components/imagecontainer/ImageCard";
 import SearchEngine from "~~/components/searchengine/SearchEngine";
+import TitleComponent from "~~/components/titlecontainer/TItleContainer";
 import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { NFTMetaData } from "~~/models/models";
 
 // Proompt
-const configuration = new Configuration({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-const initialContext = {
-  role: messageRoleEnum.System,
-  content: `You will identify a theme based on the user input, and you will generate a list of values related to that theme. Generate 2 values for each trait. For ALL of your responses, do not include anything other than the data model.
+// const configuration = new Configuration({
+//   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+// });
+// const openai = new OpenAIApi(configuration);
+// const initialContext = {
+//   role: messageRoleEnum.System,
+//   content: `You will identify a theme based on the user input, and you will generate a list of values related to that theme. Generate 2 values for each trait. For ALL of your responses, do not include anything other than the data model.
 
-  export interface StableDiffusionPayload {
-    head: Array<string>;
-    glasses: Array<string>;
-    body: Array<string>;
-    accessories: Array<string>;
-  }
+//   export interface StableDiffusionPayload {
+//     head: Array<string>;
+//     glasses: Array<string>;
+//     body: Array<string>;
+//     accessories: Array<string>;
+//   }
 
-  Below is an example of a response following the above payload model. The response should NEVER include anything outside the curly braces. 
-  DO NOT WRITE ANYTHING OUTSIDE THE CURLY BRACES. DO NOT REPEAT THE INPUT
+//   Below is an example of a response following the above payload model. The response should NEVER include anything outside the curly braces.
+//   DO NOT WRITE ANYTHING OUTSIDE THE CURLY BRACES. DO NOT REPEAT THE INPUT
 
-  Example: correct output denoted in the & symbols below for input of "materials type of nft":
-  &
-  {
-    "head": ["yarn", "string"],
-    "glasses": ["beans", "beads"],
-    "body": ["paper art", "plush"],
-    "accessories": ["construction paper", "playdoh"]
-  }
-  &
-  &
-  {
-    "head": ["skin", "spiky"],
-    "glasses": ["beans", "beads"],
-    "body": ["paper art", "plush"],
-    "accessories": ["construction paper", "playdoh"]
-  }
-  &
+//   Example: correct output denoted in the & symbols below for input of "materials type of nft":
+//   &
+//   {
+//     "head": ["yarn", "string"],
+//     "glasses": ["beans", "beads"],
+//     "body": ["paper art", "plush"],
+//     "accessories": ["construction paper", "playdoh"]
+//   }
+//   &
+//   &
+//   {
+//     "head": ["skin", "spiky"],
+//     "glasses": ["beans", "beads"],
+//     "body": ["paper art", "plush"],
+//     "accessories": ["construction paper", "playdoh"]
+//   }
+//   &
 
-
-  `,
-};
+//   `,
+// };
 
 const constructPayload = (input: string) => {
   return `{
@@ -62,15 +62,15 @@ const constructPayload = (input: string) => {
     "glasses": ["${input}"],
     "body": ["${input}"],
     "accessories": ["${input}"]
-
     }`;
 };
 
 const Home: NextPage = () => {
-  const [isAPILoading, setIsAPILoading] = React.useState(false);
-  const [activeImage, setActiveImage] = React.useState<string | null>(null);
-  const [previewList, setPreviewList] = React.useState<NFTMetaData[]>([]);
-  const [isMinted, setIsMinted] = React.useState(false);
+  const [lastSearchTerm, setLastSearchTerm] = useState("");
+  const [isAPILoading, setIsAPILoading] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [previewList, setPreviewList] = useState<NFTMetaData[]>([]);
+  const [isMinted, setIsMinted] = useState(false);
   const { address } = useAccount();
   const { writeAsync, isLoading, isMining } = useScaffoldContractWrite({
     contractName: "ChameleonContract",
@@ -82,11 +82,15 @@ const Home: NextPage = () => {
     blockConfirmations: 1,
     // The callback function to execute when the transaction is confirmed.
     onBlockConfirmation: txnReceipt => {
-      console.log("Transaction blockHash", txnReceipt.blockHash);
+      console.log("Successful Block Tx", txnReceipt.blockHash);
+      setIsMinted(true);
+    },
+    onError: error => {
+      console.log("Block Tx failed", error);
+      setIsMinted(false);
     },
   });
-  const [previewMode, setPreviewMode] = React.useState(true);
-  let currentPromptInput = "";
+  const [previewMode, setPreviewMode] = useState(true);
 
   const fetchNFTData = async (urls: string[]): Promise<NFTMetaData[]> => {
     try {
@@ -123,12 +127,11 @@ const Home: NextPage = () => {
     setIsAPILoading(true);
     try {
       const response = await fetch("https://api.chameleon.wtf:14350/generate", {
-        method: "POST", // or 'POST'
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // 'Authorization': 'Bearer ' + token, // if you need to send a token
         },
-        body: payload.toString(), // if you're sending data
+        body: payload.toString(),
       });
 
       if (!response.ok) {
@@ -137,6 +140,8 @@ const Home: NextPage = () => {
       const nftURLResponse = await response.json();
       const nftURLs = nftURLResponse?.urls ?? [];
       const nftData = await fetchNFTData(nftURLs);
+      const firstImage = nftData?.[0].URI;
+      setActiveImage(firstImage);
       setPreviewList(nftData);
       setIsAPILoading(false);
     } catch (error) {
@@ -145,20 +150,14 @@ const Home: NextPage = () => {
     }
   };
 
-  const previewBtnHandler = async () => {
-    if (previewMode) {
-      setPreviewMode(false);
-    }
-    fetchNFTURLs(constructPayload(currentPromptInput));
-  };
-
-  const handleTextChange = (text: string) => {
-    currentPromptInput = text;
-  };
-
-  const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      previewBtnHandler();
+  const handleSearch = async (inputValue: string) => {
+    if (!isAPILoading && !isLoading && !isMining) {
+      if (previewMode) {
+        setPreviewMode(false);
+      }
+      const payload = constructPayload(inputValue);
+      fetchNFTURLs(payload);
+      setLastSearchTerm(inputValue);
     }
   };
 
@@ -168,13 +167,17 @@ const Home: NextPage = () => {
 
   const returnToLoopState = () => {
     setIsMinted(false);
-    fetchNFTURLs(constructPayload(""));
+    setActiveImage(null);
+    setPreviewList([]);
   };
 
   const handleMint = async () => {
     try {
-      await writeAsync();
-      setIsMinted(true);
+      if (!!activeImage) {
+        writeAsync();
+      } else {
+        setIsMinted(false);
+      }
     } catch (error) {
       console.error(`Error occurred during API call: ${error}.`);
     }
@@ -185,15 +188,7 @@ const Home: NextPage = () => {
       <MetaHeader />
       <div className="flex flex-col items-center justify-center flex-grow">
         <div className="flex flex-col justify-center gap-5">
-          <>
-            <div className="flex">
-              <img src="/assets/nounsmeleon.svg" />
-              <img src="/assets/nounsmeleon_wordmark.svg" alt="Nounsmeleon" />
-            </div>
-            <div style={{ marginTop: "-4rem", marginLeft: "13rem" }}>
-              <img src="/assets/motto.svg" alt="Generative NFTs made easy" />
-            </div>
-          </>
+          <TitleComponent />
           {isMinted && activeImage !== null ? (
             <div className="flex flex-col items-center justify-center">
               <ImageCard imgLink={activeImage} altText="Minted Image" onImgChosen={imgChosenCallback} isActive={true} />
@@ -207,15 +202,7 @@ const Home: NextPage = () => {
           ) : (
             <>
               <div className="flex flex-grow p-3">
-                <SearchEngine onKeyPress={handleEnterKey} onTextChanged={handleTextChange} />
-                <button
-                  style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px" }}
-                  className="outline-black outline-1 text-black px-4 py-2 flex items-center"
-                  onClick={previewBtnHandler}
-                >
-                  <img style={{ marginRight: "8px" }} src="/assets/nounsify.svg" />
-                  <span>Nounsify!</span>
-                </button>
+                <SearchEngine handleSearch={handleSearch} />
               </div>
 
               {!isAPILoading ? (
@@ -224,11 +211,11 @@ const Home: NextPage = () => {
                     <>
                       <div className="flex justify-center gap-4">
                         <ImageButton
-                          onClick={returnToLoopState}
+                          onClick={() => handleSearch("")}
                           text="Surprise Me"
                           imageUrl="/assets/surprise_duck.svg"
                         />
-                        <ImageButton onClick={() => { }} text="Guide" imageUrl="/assets/guide_hat.svg" />
+                        <ImageButton onClick={() => {}} text="Guide" imageUrl="/assets/guide_hat.svg" />
                       </div>
                     </>
                   ) : null}
@@ -247,11 +234,12 @@ const Home: NextPage = () => {
                   {!previewMode ? (
                     <div className="flex flex-row justify-center gap-6">
                       <ImageButton
-                        onClick={() => fetchNFTURLs(constructPayload(currentPromptInput))}
+                        onClick={() => handleSearch(lastSearchTerm)}
                         text="Regenerate"
                         imageUrl="/assets/regenerate.svg"
+                        tooltipText="Regenerate will always use whatever you searched for in the last API call"
                       />
-                      <ImageButton onClick={handleMint} text="Select to Mint" imageUrl="/assets/tomint.svg" />
+                      <ImageButton onClick={handleMint} text="Mint" imageUrl="/assets/tomint.svg" />
                     </div>
                   ) : null}
                 </>

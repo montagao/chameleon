@@ -1,18 +1,25 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 
 interface SearchInputProps {
-  onTextChanged: (text: string) => void;
-  onKeyPress: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  handleSearch: (inputValue: string) => void;
 }
 
-const SearchInput: FC<SearchInputProps> = ({ onTextChanged, onKeyPress }) => {
+const SearchInput: FC<SearchInputProps> = ({ handleSearch }) => {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch(inputValue);
+    }
+  };
+
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <img src="/assets/searchbot.svg" />
-
-      <textarea
+      <img src="/assets/searchbot.svg" alt="Search Engine Icon" />
+      <input
         className="min-w-[500px] outline-black outline-1 placeholder-gray-500 resize-none"
-        rows={2}
+        type="text"
         style={{
           flexGrow: 1,
           color: "black",
@@ -22,9 +29,18 @@ const SearchInput: FC<SearchInputProps> = ({ onTextChanged, onKeyPress }) => {
           paddingInlineStart: "0.5rem",
         }}
         placeholder="artistic rainbow yarn"
-        onKeyDown={event => onKeyPress(event)}
-        onChange={event => onTextChanged(event.target.value)}
+        onKeyDown={handleKeyDown}
+        onChange={event => setInputValue(event.target.value)}
+        value={inputValue}
       />
+      <button
+        style={{ backgroundImage: "linear-gradient(90deg, #FFE9D0 0%, #FFCAEA 100%)", height: "57px" }}
+        className="outline-black outline-1 text-black px-4 py-2 flex items-center"
+        onClick={() => handleSearch(inputValue)}
+      >
+        <img style={{ marginRight: "8px" }} src="/assets/nounsify.svg" />
+        <span>Nounsify!</span>
+      </button>
     </div>
   );
 };
