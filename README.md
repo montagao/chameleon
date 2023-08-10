@@ -1,10 +1,10 @@
 # 🦎  Chameleon
 
 AI Generative NFTs made easy!
-ETHGlobal Entry Page: https://ethglobal.com/showcase/chameleon-2zvtw
-polygonmumbai Contract at: [0x848194F8D987854d7318e512E3B6767881F621F7](https://mumbai.polygonscan.com/address/0x848194F8D987854d7318e512E3B6767881F621F7)
 
-https://twitter.com/MontyG10437/status/1672839438202707968
+ETHGlobal Entry Page: https://ethglobal.com/showcase/chameleon-2zvtw
+
+polygonmumbai Contract at: [0x848194F8D987854d7318e512E3B6767881F621F7](https://mumbai.polygonscan.com/address/0x848194F8D987854d7318e512E3B6767881F621F7)
 
 scaffolded using https://github.com/scaffold-eth/scaffold-eth-2
 
